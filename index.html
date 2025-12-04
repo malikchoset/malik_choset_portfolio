@@ -68,17 +68,25 @@
         const Phone = ({ size }) => <Icon className={`w-${size/4} h-${size/4}`}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></Icon>;
         const Linkedin = ({ size }) => <Icon className={`w-${size/4} h-${size/4}`}><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></Icon>;
         const Download = ({ size }) => <Icon className={`w-${size/4} h-${size/4}`}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></Icon>;
+        const CheckCircle = ({ size }) => <Icon className={`w-${size/4} h-${size/4}`}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></Icon>;
 
         // --- MAIN APP ---
         const Portfolio = () => {
           const [isMenuOpen, setIsMenuOpen] = useState(false);
           const [selectedProject, setSelectedProject] = useState(null); 
           
+          // Form State
+          const [formStatus, setFormStatus] = useState("IDLE"); // IDLE, SENDING, SUCCESS, ERROR
           const [formData, setFormData] = useState({
             name: '',
             email: '',
             message: ''
           });
+
+          // ************************************************************
+          // IMPORTANT: Replace this string with your Formspree Form ID
+          // ************************************************************
+          const FORMSPREE_ID = "xpwvlaep"; 
 
           const scrollToSection = (id) => {
             setIsMenuOpen(false);
@@ -97,11 +105,34 @@
             setFormData(prev => ({ ...prev, [name]: value }));
           };
 
-          const handleSubmit = (e) => {
+          const handleSubmit = async (e) => {
             e.preventDefault();
-            const subject = `Portfolio Contact from ${formData.name}`;
-            const body = `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`;
-            window.location.href = `mailto:mchoset@andrew.cmu.edu?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            if (FORMSPREE_ID === "PASTE_YOUR_FORMSPREE_ID_HERE") {
+                alert("Please add your Formspree ID in the code to enable sending!");
+                return;
+            }
+
+            setFormStatus("SENDING");
+
+            try {
+                const response = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    setFormStatus("SUCCESS");
+                    setFormData({ name: '', email: '', message: '' });
+                } else {
+                    setFormStatus("ERROR");
+                }
+            } catch (error) {
+                setFormStatus("ERROR");
+            }
           };
 
           // Projects Data
@@ -340,14 +371,31 @@
                         </a>
                       </div>
                     </div>
-                    <div className="p-10 bg-white">
-                      <form className="space-y-4" onSubmit={handleSubmit}>
-                         <p className="text-cmu-iron text-sm mb-4">Send me a direct message:</p>
-                        <input type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-cmu-steel rounded-lg focus:ring-1 focus:ring-cmu-red outline-none text-sm" placeholder="Your Name" required />
-                        <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-cmu-steel rounded-lg focus:ring-1 focus:ring-cmu-red outline-none text-sm" placeholder="Your Email" required />
-                        <textarea rows="3" name="message" value={formData.message} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-cmu-steel rounded-lg focus:ring-1 focus:ring-cmu-red outline-none text-sm" placeholder="Hello Malik..." required></textarea>
-                        <button type="submit" className="w-full py-3 bg-cmu-black text-white font-bold rounded-lg hover:bg-cmu-iron transition-colors text-sm">Send Message</button>
-                      </form>
+                    
+                    <div className="p-10 bg-white relative">
+                      {formStatus === "SUCCESS" ? (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-white p-10 text-center animate-fade-in">
+                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                                <CheckCircle size={32} className="text-green-600" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-cmu-black mb-2">Message Sent!</h3>
+                            <p className="text-cmu-iron text-sm">Thanks for reaching out. I'll get back to you soon.</p>
+                            <button onClick={() => setFormStatus("IDLE")} className="mt-6 text-cmu-red font-bold text-sm hover:underline">Send another message</button>
+                        </div>
+                      ) : (
+                          <form className="space-y-4" onSubmit={handleSubmit}>
+                             <p className="text-cmu-iron text-sm mb-4">Send me a direct message:</p>
+                            <input type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-cmu-steel rounded-lg focus:ring-1 focus:ring-cmu-red outline-none text-sm" placeholder="Your Name" required disabled={formStatus === "SENDING"} />
+                            <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-cmu-steel rounded-lg focus:ring-1 focus:ring-cmu-red outline-none text-sm" placeholder="Your Email" required disabled={formStatus === "SENDING"} />
+                            <textarea rows="3" name="message" value={formData.message} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-cmu-steel rounded-lg focus:ring-1 focus:ring-cmu-red outline-none text-sm" placeholder="Hello Malik..." required disabled={formStatus === "SENDING"}></textarea>
+                            <button type="submit" disabled={formStatus === "SENDING"} className="w-full py-3 bg-cmu-black text-white font-bold rounded-lg hover:bg-cmu-iron transition-colors text-sm flex justify-center items-center">
+                                {formStatus === "SENDING" ? (
+                                    <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                ) : "Send Message"}
+                            </button>
+                            {formStatus === "ERROR" && <p className="text-red-600 text-xs text-center mt-2">Something went wrong. Please try again.</p>}
+                          </form>
+                      )}
                     </div>
                   </div>
                 </div>
