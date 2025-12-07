@@ -51,7 +51,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState } = React;
+        const { useState, useEffect, useCallback } = React;
 
         // --- ICONS ---
         const Icon = ({ children, className }) => (
@@ -62,6 +62,7 @@
 
         const Wind = ({ className }) => <Icon className={className}><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></Icon>;
         const Layers = ({ className }) => <Icon className={className}><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></Icon>;
+        
         const Menu = ({ className }) => <Icon className={className}><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></Icon>;
         const X = ({ className }) => <Icon className={className}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></Icon>;
         const Mail = ({ size }) => <Icon className={`w-${size/4} h-${size/4}`}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></Icon>;
@@ -69,6 +70,9 @@
         const Linkedin = ({ size }) => <Icon className={`w-${size/4} h-${size/4}`}><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></Icon>;
         const Download = ({ size }) => <Icon className={`w-${size/4} h-${size/4}`}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></Icon>;
         const CheckCircle = ({ size }) => <Icon className={`w-${size/4} h-${size/4}`}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></Icon>;
+        
+        const ChevronLeft = ({ className }) => <Icon className={className}><polyline points="15 18 9 12 15 6" /></Icon>;
+        const ChevronRight = ({ className }) => <Icon className={className}><polyline points="9 18 15 12 9 6" /></Icon>;
 
         // --- MAIN APP ---
         const Portfolio = () => {
@@ -76,16 +80,13 @@
           const [selectedProject, setSelectedProject] = useState(null); 
           
           // Form State
-          const [formStatus, setFormStatus] = useState("IDLE"); // IDLE, SENDING, SUCCESS, ERROR
+          const [formStatus, setFormStatus] = useState("IDLE");
           const [formData, setFormData] = useState({
             name: '',
             email: '',
             message: ''
           });
 
-          // ************************************************************
-          // IMPORTANT: Replace this string with your Formspree Form ID
-          // ************************************************************
           const FORMSPREE_ID = "xpwvlaep"; 
 
           const scrollToSection = (id) => {
@@ -143,10 +144,14 @@
               role: "Sub-System Lead @ Carnegie Mellon Racing",
               category: "Aerodynamics",
               tools: ["SOLIDWORKS", "Luminary CFD", "Ansys Mechanical", "MATLAB"],
-              description: "Designed a 4-bar linkage mechanism to control the rear wing airfoil rotation. Validated aerodynamic performance using Luminary CFD and calculated required servo torque via MATLAB. Ensured structural integrity of the enclosure with Ansys FEA.",
+              description: [
+                "Designed a 4-bar linkage mechanism to control the rear wing airfoil rotation.",
+                "Validated aerodynamic performance using Luminary CFD and calculated required servo torque via MATLAB.",
+                "Ensured structural integrity of the enclosure with Ansys FEA."
+              ],
               color: "bg-cmu-red/10",
               icon: <Wind className="w-12 h-12 text-cmu-red" />,
-              images: [ "drs_1.png", "drs_2.gif", "drs_3.png" ]
+              images: [ "drs_1.png", "drs_1.1.png", "drs_1.2.png", "drs_1.3.png", "drs_1.4.png", "drs_2.gif", "drs_3.png" ]
             },
             {
               id: 2,
@@ -154,10 +159,25 @@
               role: "Research Assistant @ CMU Robotics Institute",
               category: "Robotics",
               tools: ["Ansys Mechanical", "CAD", "Material Selection"],
-              description: "Developed a novel force-sensing gripper and foot module utilizing a compressible structure with internal magnets for feedback. Conducted extensive stress simulations to inform design decisions for locomotion and grasping.",
+              description: [
+                "Developed a novel force-sensing gripper and foot module utilizing a compressible structure with internal magnets for feedback.",
+                "Conducted extensive stress simulations to inform design decisions for locomotion and grasping."
+              ],
               color: "bg-cmu-steel/20",
               icon: <Layers className="w-12 h-12 text-cmu-black" />,
-              images: [ "eig_1.png", "eig_2.png", "eig_3.png" ]
+              images: [ "eig_1.png", "eig_1.1.png", "eig_2.png", "eig_2.1.png", "eig_3.png" ]
+            },
+            // NEW: Remote-Controlled F16 Project
+            {
+              id: 3,
+              title: "Remote-Controlled F16 Aircraft",
+              role: "Personal Project",
+              category: "Aerodynamics & 3D Printing",
+              tools: ["CAD", "3D Printing", "RC Electronics", "Prototyping"],
+              description: "Designed and constructed a remote-controlled F16 model aircraft manufactured entirely using 3D printing techniques.",
+              color: "bg-cmu-iron/10",
+              // Icon removed so it uses the image below as the cover
+              images: [ "rc_1.png" ]
             }
           ];
 
@@ -168,25 +188,87 @@
             { category: "Leadership", items: ["Sub-System Lead (CMR)"] }
           ];
 
+          // Project Modal with Gallery Logic
           const ProjectModal = ({ project, onClose }) => {
-            const [activeImage, setActiveImage] = useState(project.images[0]);
+            const [currentIndex, setCurrentIndex] = useState(0);
+
             if (!project) return null;
+
+            // Handlers for Next/Prev
+            const handleNext = useCallback(() => {
+                setCurrentIndex((prevIndex) => (prevIndex + 1) % project.images.length);
+            }, [project.images.length]);
+
+            const handlePrev = useCallback(() => {
+                setCurrentIndex((prevIndex) => (prevIndex - 1 + project.images.length) % project.images.length);
+            }, [project.images.length]);
+
+            // Keyboard navigation
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if (e.key === "ArrowRight") handleNext();
+                    if (e.key === "ArrowLeft") handlePrev();
+                    if (e.key === "Escape") onClose();
+                };
+                window.addEventListener("keydown", handleKeyDown);
+                return () => window.removeEventListener("keydown", handleKeyDown);
+            }, [handleNext, handlePrev, onClose]);
 
             return (
               <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onClose}>
                 <div className="bg-white rounded-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row shadow-2xl" onClick={e => e.stopPropagation()}>
-                  <div className="md:w-2/3 bg-black flex flex-col">
-                    <div className="h-64 md:h-[500px] bg-neutral-900 flex items-center justify-center overflow-hidden">
-                        <img src={activeImage} alt="Project Detail" className="w-full h-full object-contain" />
+                  
+                  {/* Left: Image Gallery Area */}
+                  <div className="md:w-2/3 bg-black flex flex-col relative group">
+                    {/* Main Image Container */}
+                    <div className="h-64 md:h-[500px] bg-neutral-900 flex items-center justify-center overflow-hidden relative">
+                        
+                        {/* Current Image */}
+                        <img 
+                            src={project.images[currentIndex]} 
+                            alt={`Project detail ${currentIndex + 1}`} 
+                            className="w-full h-full object-contain transition-opacity duration-300" 
+                        />
+
+                        {/* Navigation Arrows (Show on Hover) */}
+                        {project.images.length > 1 && (
+                            <>
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); handlePrev(); }}
+                                    className="absolute left-4 p-2 rounded-full bg-black/50 text-white hover:bg-cmu-red transition-all opacity-0 group-hover:opacity-100"
+                                >
+                                    <ChevronLeft className="w-6 h-6" />
+                                </button>
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); handleNext(); }}
+                                    className="absolute right-4 p-2 rounded-full bg-black/50 text-white hover:bg-cmu-red transition-all opacity-0 group-hover:opacity-100"
+                                >
+                                    <ChevronRight className="w-6 h-6" />
+                                </button>
+                            </>
+                        )}
+
+                        {/* Image Counter */}
+                        <div className="absolute top-4 right-4 bg-black/60 text-white text-xs px-2 py-1 rounded font-mono">
+                            {currentIndex + 1} / {project.images.length}
+                        </div>
                     </div>
+                    
+                    {/* Thumbnail Strip */}
                     <div className="flex gap-2 p-4 overflow-x-auto bg-neutral-900 border-t border-neutral-800 no-scrollbar">
                         {project.images.map((img, idx) => (
-                            <button key={idx} onClick={() => setActiveImage(img)} className={`flex-shrink-0 h-16 w-24 rounded overflow-hidden border-2 transition-all ${activeImage === img ? 'border-cmu-red opacity-100' : 'border-transparent opacity-50 hover:opacity-80'}`}>
+                            <button 
+                                key={idx} 
+                                onClick={() => setCurrentIndex(idx)}
+                                className={`flex-shrink-0 h-16 w-24 rounded overflow-hidden border-2 transition-all ${currentIndex === idx ? 'border-cmu-red opacity-100' : 'border-transparent opacity-50 hover:opacity-80'}`}
+                            >
                                 <img src={img} className="w-full h-full object-cover" />
                             </button>
                         ))}
                     </div>
                   </div>
+
+                  {/* Right: Info */}
                   <div className="md:w-1/3 p-8 flex flex-col bg-white">
                     <button onClick={onClose} className="self-end p-2 text-cmu-iron hover:text-cmu-red mb-4">
                         <X />
@@ -196,7 +278,17 @@
                         <h2 className="text-2xl font-bold text-cmu-black mt-3 mb-1">{project.title}</h2>
                         <p className="text-sm font-semibold text-cmu-iron">{project.role}</p>
                     </div>
-                    <div className="prose prose-sm text-cmu-iron leading-relaxed mb-6">{project.description}</div>
+                    <div className="prose prose-sm text-cmu-iron leading-relaxed mb-6">
+                        {Array.isArray(project.description) ? (
+                            <ul className="list-disc pl-5 space-y-2">
+                                {project.description.map((point, i) => (
+                                    <li key={i}>{point}</li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p>{project.description}</p>
+                        )}
+                    </div>
                     <div className="mt-auto">
                         <h4 className="text-xs font-bold text-cmu-black uppercase mb-3">Tools Used</h4>
                         <div className="flex flex-wrap gap-2">
@@ -290,7 +382,7 @@
                 </div>
               </section>
 
-              {/* Projects Gallery - Now Higher Up */}
+              {/* Projects Gallery */}
               <section id="projects" className="bg-cmu-black py-20 text-white">
                 <div className="max-w-6xl mx-auto px-4">
                   <h2 className="text-3xl font-bold mb-4">Engineering Projects</h2>
@@ -328,7 +420,10 @@
                             {project.role}
                           </p>
                           <p className="text-gray-400 text-sm mb-4 leading-relaxed flex-1">
-                            {project.description.substring(0, 100)}...
+                            {/* Handle array or string description for preview card */}
+                            {Array.isArray(project.description) 
+                                ? project.description[0].substring(0, 100) 
+                                : project.description.substring(0, 100)}...
                           </p>
                           <div className="flex flex-wrap gap-2 mt-auto">
                             {project.tools.slice(0,3).map((tool, tIdx) => (
@@ -418,6 +513,4 @@
         root.render(<Portfolio />);
     </script>
 </body>
-
 </html>
-
